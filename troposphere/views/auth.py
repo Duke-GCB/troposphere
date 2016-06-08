@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate, login as auth_login
 
 from iplantauth.authBackends import get_or_create_user, generate_token
 from iplantauth.views import globus_login_redirect, globus_logout_redirect
+from iplantauth.views import oauth2_login_redirect, oauth2_logout_redirect
 
 logger = logging.getLogger(__name__)
 cas_oauth_client = CAS_OAuthClient(settings.CAS_SERVER,
@@ -71,6 +72,8 @@ def login(request):
         return _globus_login(request)
     elif 'iplantauth.authBackends.OAuthLoginBackend' in all_backends:
         return _oauth_login(request)
+    elif 'iplantauth.authBackends.OAuth2LoginBackend' in all_backends:
+        return _oauth2_login(request)
     elif request.META['REQUEST_METHOD'] is 'POST':
         return _post_login(request)
     #Uh - Oh.
@@ -105,6 +108,9 @@ def logout(request):
           or 'iplantauth.authBackends.GlobusOAuthLoginBackend' in all_backends:
             logger.info("[Globus] Redirect user to logout")
             return globus_logout_redirect(request)
+        elif 'iplantauth.authBackends.OAuth2LoginBackend' in all_backends:
+            logger.info("[OAuth2] Redirect user to logout")
+            return oauth2_logout_redirect(request)
     return redirect('application')
 
 
@@ -191,3 +197,6 @@ def cas_oauth_service(request):
 
 
     return response
+
+def _oauth2_login(request):
+    return oauth2_login_redirect(request)
