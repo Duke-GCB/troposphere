@@ -18,7 +18,8 @@ export default React.createClass({
       name: React.PropTypes.string.isRequired,
       description: React.PropTypes.string.isRequired,
       newImage: React.PropTypes.bool.isRequired,
-      helpLink: React.PropTypes.instanceOf(Backbone.Model).isRequired
+      helpLink: React.PropTypes.instanceOf(Backbone.Model).isRequired,
+      imageTags: React.PropTypes.instanceOf(Backbone.Collection).isRequired
     },
 
     getDefaultProps: function () {
@@ -26,7 +27,6 @@ export default React.createClass({
         name: "",
         description: "",
         imageOwner: false,
-        imageTags: null,
         newImage: true,
       };
     },
@@ -37,7 +37,7 @@ export default React.createClass({
         nameError: this.setNameError(this.props.name),
         description: this.props.description,
         newImage: this.props.newImage,
-        imageTags: this.props.imageTags || stores.InstanceTagStore.getTagsFor(this.props.instance),
+        imageTags: this.props.imageTags,
       }
     },
     isValidName: function (value) {

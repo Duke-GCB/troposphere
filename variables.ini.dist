@@ -4,6 +4,7 @@ ASSETS_PATH =
 THEME_PATH =
 
 [nginx]
+ENABLE_HTTP2 = ; enable if http2 module available in nginx build
 BUNDLE_FILE =
 TROPOSPHERE_PATH =
 LOCATIONS_DIR =
@@ -29,7 +30,6 @@ UWSGI_LOG_PATH =
 
 [local.py]
 DEBUG =
-SECRET_KEY =
 THEME_NAME =
 SITE_TITLE =
 SITE_FOOTER =
@@ -37,6 +37,7 @@ ORG_NAME =
 SUPPORT_EMAIL =
 API_SERVER =
 BASE_URL =
+DYNAMIC_ASSET_LOADING = ; False for local dev - controls JS asset generations and loading (app.js vs app-[hash].js)
 ENABLE_WEBPACK_LOADER_CACHE = ; if local, set False otherwise True
 AUTH_USE_OVERRIDE =
 AUTH_ENABLE_MOCK =
@@ -46,7 +47,6 @@ AUTH_ENABLE_OAUTH =
 AUTH_ENABLE_CAS =
 AUTH_ENABLE_LDAP =
 MOCK_USER =
-USE_MOCK_AUTH =
 DATABASE_NAME =
 DATABASE_ENGINE =
 DATABASE_USER =

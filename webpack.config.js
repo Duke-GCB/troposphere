@@ -19,13 +19,28 @@ var PATHS = {
 }
 
 var plugins = [
-    new ExtractTextPlugin("[name]-[hash].css", { allChunks: true }),
     new BundleTracker({filename: './webpack-stats.json'}),
+    new webpack.optimize.CommonsChunkPlugin({
+        names: ['vendor', 'manifest'],
+        minChunks: Infinity
+    }),
     new Clean([PATHS.output])
 ];
 
+var outputCfg = {}
+
+var pkg = require('./package.json');
+
 if (process.env.NODE_ENV === "production") {
+  outputCfg = {
+    path: PATHS.output,
+    publicPath: "/assets/bundles/",
+    filename: "[name]-[chunkhash].js",
+    chunkFilename: '[chunkhash].js'
+  };
+
   plugins.push(
+    new ExtractTextPlugin("[name]-[hash].css", { allChunks: true }),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.DefinePlugin({
         "process.env.NODE_ENV": JSON.stringify("production")
@@ -34,22 +49,36 @@ if (process.env.NODE_ENV === "production") {
       compressor: {
         warnings: false
       }
+    }),
+    new CompressionPlugin({
+            asset: "[path].gz[query]",
+            algorithm: "gzip",
+            test: /\.js$|\.css$/,
+            threshold: 10240,
+            minRatio: 0.8
     })
   );
+} else {
+  plugins.push(
+    new ExtractTextPlugin("[name].css", { allChunks: true })
+  );
+
+  outputCfg = {
+    path: PATHS.output,
+    publicPath: "/assets/bundles/",
+    filename: "[name].js"
+  };
 }
 
 module.exports = {
   entry: {
+    vendor: Object.keys(pkg.dependencies),
     app: "./main",
     analytics: "./analytics",
     public: "./public_site/main"
   },
   context: PATHS.context,
-  output: {
-    path: PATHS.output,
-    publicPath: "/assets/bundles/",
-    filename: "[name]-[hash].js"
-  },
+  output: outputCfg,
   module: {
     loaders: [
       { test: /bootstrap-sass/, loader: "imports?jQuery=jquery" },

@@ -3,10 +3,12 @@ import Backbone from 'backbone';
 import actions from 'actions';
 import modals from 'modals';
 import MaintenanceMessageBanner from './MaintenanceMessageBanner.react';
+import context from 'context';
 import globals from 'globals';
 import Router from 'react-router';
 
-
+import NotificationController from 'controllers/NotificationController';
+import { trackAction } from 'utilities/userActivity';
 import { hasLoggedInUser } from 'utilities/profilePredicate';
 
 let Link = Router.Link;
@@ -99,7 +101,7 @@ let LogoutLink = React.createClass({
       var statusPageEl,
         username = this.props.username;
 
-      if (!username && show_public_site) {
+      if (!username && window.show_public_site) {
           username = "AnonymousUser"
       }
       if (globals.STATUS_PAGE_LINK) {
@@ -156,8 +158,21 @@ let Header = React.createClass({
         this.setState({windowWidth: window.innerWidth});
     },
 
+    handleNotice: function() {
+        if (context.hasMaintenanceNotice()) {
+            NotificationController.warning(
+                "CyVerse Maintenance Information",
+                context.getMaintenanceNotice(),
+                {
+                     "positionClass": "toast-top-full-width"
+                }
+            );
+        }
+    },
+
     componentDidMount: function() {
         window.addEventListener('resize', this.handleResize);
+        this.handleNotice();
     },
 
     componentWillUnmount: function() {
@@ -167,12 +182,10 @@ let Header = React.createClass({
     renderBetaToggle: function () {
       if (!window.show_troposphere_only) {
         let trackEvent = (e) => {
-            if (window.Intercom) {
-                window.Intercom('trackEvent', 'switch-ui', {
+            trackAction('switch-ui', {
                     user_interface: 'troposphere-to-airport'
-                });
-                window.Intercom('trackEvent', 'switch-to-airport');
-            }
+            });
+            trackAction('switch-to-airport');
         };
         return (
           <div className="beta-toggle">
